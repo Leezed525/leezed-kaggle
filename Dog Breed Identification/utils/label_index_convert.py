@@ -22,11 +22,9 @@ class LabelIndexConvert():
         return index_to_label
 
     def __getitem__(self, item):
-        print(item)
         if isinstance(item, str):
             return self.label_to_index[item]
         else:
-            print(item)
             return self.index_to_label[item]
 
 if __name__ == '__main__':
