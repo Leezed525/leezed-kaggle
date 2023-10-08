@@ -35,7 +35,6 @@ class Dog_dataset(Dataset):
         if self.mode == 'train':
             # 获取标签
             label = self.labels[self.labels['id'] == img_name.split('.')[0]]['breed'].item()
-            print(label)
             label = torch.as_tensor(self.label_index_convert[label], dtype=torch.long)
             return img, label
         else:
