@@ -6,7 +6,7 @@ import torch
 import torchvision.transforms as transforms
 
 
-class Dog_dataset(Dataset):
+class DogDataset(Dataset):
     def __init__(self, root_path, mode='train', transform=None, label_index_convert=None):
 
         self.mode = mode
@@ -56,4 +56,4 @@ class Dog_dataset(Dataset):
 
 if __name__ == '__main__':
     root_path = os.getcwd()
-    train_dataset = Dog_dataset(root_path)
+    train_dataset = DogDataset(root_path)
