@@ -17,7 +17,7 @@ def verify_computation(cin, cout, expansion):
 
 
 class BottleNeck(nn.Module):
-    def __init__(self, cin, cout, shortcut=False, expansion=0.5):
+    def __init__(self, cin, cout, shortcut=False, expansion=0.5,bias=False):
         """
         BottleNect
         :param cin:
@@ -27,8 +27,8 @@ class BottleNeck(nn.Module):
         """
         super(BottleNeck, self).__init__()
         c_ = int(cout * expansion)
-        self.cv1 = Conv(cin, c_, 1, 1)
-        self.cv2 = Conv(c_, cout, 3, 1)
+        self.cv1 = Conv(cin, c_, 1, 1,bias=bias)
+        self.cv2 = Conv(c_, cout, 3, 1,bias=bias)
         self.add = shortcut and cin == cout
 
     def forward(self, x):
@@ -37,7 +37,7 @@ class BottleNeck(nn.Module):
 
 
 class BottleNeckCSP(nn.Module):
-    def __init__(self, cin, cout, shortcut=True, expansion=0.5, n=1):
+    def __init__(self, cin, cout, shortcut=True, expansion=0.5, n=1,bias=False):
         """
         BottleNeckCSP
         使用bottleNeck的CSP结构
@@ -52,9 +52,9 @@ class BottleNeckCSP(nn.Module):
         super(BottleNeckCSP, self).__init__()
         c_ = int(cout * expansion)
         # 对于走多重bottleNeck的路，先经过一个Conv
-        self.cv1 = Conv(cin, c_, 1, 1)
+        self.cv1 = Conv(cin, c_, 1, 1,bias=bias)
         # 在经过n个bottleNeck
-        self.m = nn.Sequential(*[BottleNeck(c_, c_, shortcut, expansion) for _ in range(n)])
+        self.m = nn.Sequential(*[BottleNeck(c_, c_, shortcut, expansion,bias=bias) for _ in range(n)])
         # 在经过一个单纯的卷积层
         self.cv2 = nn.Conv2d(c_, c_, 1, 1)
 

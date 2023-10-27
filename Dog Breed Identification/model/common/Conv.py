@@ -1,5 +1,6 @@
 import torch.nn as nn
 import torch.nn.functional as F
+import torch
 
 
 def autopad(k, p=None, dilation=1):
@@ -43,20 +44,29 @@ class Conv(nn.Module):
 
 
 class ResBlock(nn.Module):
-    def __init__(self, cin, expansion=0.5):
+    def __init__(self, cin, expansion=0.5, learned_shortcut=False):
         super(ResBlock, self).__init__()
         c_ = int(cin * expansion)
-        self.cv1 = Conv(cin, c_, 1, 1)
-        self.cv2 = Conv(c_, cin, 3, 1)
+        self.cv1 = Conv(cin, c_, 1, 1,bias=True)
+        self.cv2 = Conv(c_, cin, 3, 1,bias=True)
+        self.learned_shortcut = learned_shortcut
+        if learned_shortcut:
+            self.w_origin = nn.Parameter(torch.FloatTensor(1), requires_grad=True)
+            self.w_after = nn.Parameter(torch.FloatTensor(1), requires_grad=True)
+            nn.init.kaiming_normal_(self.w_origin)
+            nn.init.kaiming_normal_(self.w_after)
 
     def forward(self, x):
-        return x + self.cv2(self.cv1(x))
+        if self.learned_shortcut:
+            return x * self.w_origin + self.cv2(self.cv1(x)) * self.w_after
+        else:
+            return x + self.cv2(self.cv1(x))
 
 
 class ResN(nn.Module):
     def __init__(self, cin, n=1):
         super(ResN, self).__init__()
-        self.conv = Conv(cin, cin, 3, 1)
+        self.conv = Conv(cin, cin, 3, 1,bias=True)
         self.m = nn.Sequential(*[ResBlock(cin) for _ in range(n)])
 
     def forward(self, x):
